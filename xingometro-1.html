@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤬 Xingômetro 3000</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --surface2: #252525;
+    --border: #333;
+    --accent: #ff3c3c;
+    --accent2: #ff9a00;
+    --green: #00e676;
+    --text: #f0f0f0;
+    --muted: #888;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(255,60,60,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(255,154,0,0.06) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 36px; }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 1;
+    background: linear-gradient(135deg, #ff3c3c, #ff9a00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+    display: block;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .reset-btn {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card.active::before { opacity: 1; }
+
+  .card-rank {
+    position: absolute;
+    top: 14px; right: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .card-rank.gold { color: #ffd700; }
+  .card-rank.silver { color: #c0c0c0; }
+  .card-rank.bronze { color: #cd7f32; }
+
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem; color: white;
+    margin-bottom: 14px;
+  }
+
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem; letter-spacing: 1px; line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .xing-label {
+    font-size: 0.75rem; font-weight: 700;
+    color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+
+  .counter-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 5rem);
+    line-height: 1; color: var(--text);
+    margin-bottom: 4px; transition: color 0.3s;
+  }
+  .counter-display.bump { animation: bump 0.25s ease; }
+
+  @keyframes bump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); color: var(--accent); }
+    100% { transform: scale(1); }
+  }
+
+  .emoji-status { font-size: 1.3rem; margin-bottom: 20px; min-height: 30px; }
+
+  .btn-row { display: flex; gap: 10px; }
+
+  .btn {
+    flex: 1; padding: 14px 0;
+    border: none; border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; cursor: pointer;
+    transition: all 0.15s; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-plus {
+    background: rgba(255,60,60,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(255,60,60,0.3);
+  }
+  .btn-plus:hover { background: rgba(255,60,60,0.3); }
+  .btn-plus:active { transform: scale(0.93); background: rgba(255,60,60,0.5); }
+  .btn-plus:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-minus {
+    background: rgba(0,230,118,0.1);
+    color: var(--green);
+    border: 1px solid rgba(0,230,118,0.25);
+    flex: 0 0 56px;
+  }
+  .btn-minus:hover { background: rgba(0,230,118,0.2); }
+  .btn-minus:active { transform: scale(0.93); }
+  .btn-minus:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .bar-wrap {
+    margin-top: 14px; height: 4px;
+    background: var(--surface2); border-radius: 4px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px; transition: width 0.4s ease;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 12px 24px; border-radius: 999px;
+    font-weight: 700; font-size: 0.95rem;
+    transition: transform 0.3s ease;
+    pointer-events: none; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .total-banner {
+    max-width: 1100px; margin: 0 auto 28px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 28px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .total-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .total-number { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--accent); letter-spacing: 2px; }
+  .leader-label { font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+  .leader-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: #ffd700; }
+
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; z-index: 9999;
+    transition: opacity 0.4s;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--muted); letter-spacing: 2px; }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+    .btn { padding: 12px 0; font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Carregando...</div>
+</div>
+
+<header>
+  <span class="logo">🤬 Xingômetro 3000</span>
+  <p class="subtitle">Rastreador oficial de palavrões</p>
+  <button class="reset-btn" onclick="resetAll()">⚠️ Zerar tudo</button>
+</header>
+
+<div class="total-banner">
+  <div>
+    <div class="total-label">Total de xingos da galera</div>
+    <div class="total-number" id="grand-total">0</div>
+  </div>
+  <div style="text-align:right">
+    <div class="leader-label">🏆 Maior xingador</div>
+    <div class="leader-name" id="leader-name">—</div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://qcmzvjjshnoumxcdhetw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbXp2ampzaG5vdW14Y2RoZXR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MzgwNzksImV4cCI6MjA5NjAxNDA3OX0.8r-7x_Jian7uyCJpQfFERTxo0vfyN-AsW2EMe8Th678';
+
+const PEOPLE = [
+  { id: 'henrique_g', name: 'Henrique G.', initials: 'HG' },
+  { id: 'ryan_h',     name: 'Ryan H.',     initials: 'RH' },
+  { id: 'pedro_e',    name: 'Pedro E.',    initials: 'PE' },
+  { id: 'henrique_b', name: 'Henrique B.', initials: 'HB' },
+  { id: 'luiz_h',     name: 'Luiz H.',     initials: 'LH' },
+  { id: 'lucas_e',    name: 'Lucas E.',    initials: 'LE' },
+];
+
+const EMOJIS = [
+  [0, '😇 Inocente'],
+  [1, '🙂 Começando...'],
+  [3, '😏 Esquentando'],
+  [7, '😤 Nervoso'],
+  [12, '🤬 Xingador Raiz'],
+  [20, '💀 Além do Limite'],
+  [35, '☠️ LENDÁRIO'],
+];
+
+const TOASTS = ['💥 Mais um no placar!','🔥 Arrá!','😤 Isso conta!','🤬 Risca aí!','💀 Ô palavrão!','👀 Registrado!','🚨 Mais um!'];
+
+let db = {}; // cache local { id: count }
+let pending = {}; // debounce de writes
+
+// ── Supabase helpers ──────────────────────────────────────────
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...options.headers,
+    },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function loadAll() {
+  const rows = await sbFetch('xingometro?select=id,count');
+  db = {};
+  for (const r of rows) db[r.id] = r.count;
+}
+
+async function persistCount(id, count) {
+  await sbFetch(`xingometro?id=eq.${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ count }),
+  });
+}
+
+// ── Debounced write (evita flood de requests) ─────────────────
+function scheduleWrite(id) {
+  clearTimeout(pending[id]);
+  pending[id] = setTimeout(() => persistCount(id, db[id]), 600);
+}
+
+// ── UI helpers ────────────────────────────────────────────────
+function getEmoji(n) {
+  let result = EMOJIS[0];
+  for (const [t, label] of EMOJIS) if (n >= t) result = [t, label];
+  return result[1];
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function bump(id) {
+  const el = document.getElementById(`count-${id}`);
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+  const card = document.getElementById(`card-${id}`);
+  card.classList.add('active');
+  setTimeout(() => card.classList.remove('active'), 600);
+}
+
+function updateGrandTotal() {
+  let total = 0, max = -1, leader = '—';
+  for (const p of PEOPLE) {
+    const c = db[p.id] ?? 0;
+    total += c;
+    if (c > max) { max = c; leader = max > 0 ? p.name : '—'; }
+  }
+  document.getElementById('grand-total').textContent = total;
+  document.getElementById('leader-name').textContent = leader;
+
+  for (const p of PEOPLE) {
+    const fill = document.getElementById(`bar-${p.id}`);
+    if (fill) fill.style.width = max > 0 ? `${((db[p.id] ?? 0) / max) * 100}%` : '0%';
+
+    const rankEl = document.getElementById(`rank-${p.id}`);
+    if (rankEl) {
+      const sorted = [...PEOPLE].sort((a,b) => (db[b.id]??0) - (db[a.id]??0));
+      const rank = sorted.findIndex(x => x.id === p.id);
+      rankEl.className = 'card-rank';
+      if (max === 0) { rankEl.textContent = ''; continue; }
+      if (rank === 0) { rankEl.textContent = '🥇'; rankEl.classList.add('gold'); }
+      else if (rank === 1) { rankEl.textContent = '🥈'; rankEl.classList.add('silver'); }
+      else if (rank === 2) { rankEl.textContent = '🥉'; rankEl.classList.add('bronze'); }
+      else rankEl.textContent = `#${rank+1}`;
+    }
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────
+function setButtons(id, disabled) {
+  document.getElementById(`btn-plus-${id}`).disabled = disabled;
+  document.getElementById(`btn-minus-${id}`).disabled = disabled;
+}
+
+async function increment(id) {
+  db[id] = (db[id] ?? 0) + 1;
+  document.getElementById(`count-${id}`).textContent = db[id];
+  document.getElementById(`emoji-${id}`).textContent = getEmoji(db[id]);
+  bump(id);
+  showToast(TOASTS[Math.floor(Math.random() * TOASTS.length)]);
+  updateGrandTotal();
+  scheduleWrite(id);
+}
+
+async function decrement(id) {
+  if ((db[id] ?? 0) <= 0) return;
+  db[id] = db[id] - 1;
+  document.getElementById(`count-${id}`).textContent = db[id];
+  document.getElementById(`emoji-${id}`).textContent = getEmoji(db[id]);
+  updateGrandTotal();
+  scheduleWrite(id);
+}
+
+async function resetAll() {
+  if (!confirm('Zerar TUDO mesmo? Sem volta! 💀')) return;
+  for (const p of PEOPLE) {
+    db[p.id] = 0;
+    clearTimeout(pending[p.id]);
+    persistCount(p.id, 0);
+    document.getElementById(`count-${p.id}`).textContent = 0;
+    document.getElementById(`emoji-${p.id}`).textContent = getEmoji(0);
+  }
+  updateGrandTotal();
+  showToast('🧹 Slate limpo!');
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderCards() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (const p of PEOPLE) {
+    const count = db[p.id] ?? 0;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = `card-${p.id}`;
+    card.innerHTML = `
+      <div class="card-rank" id="rank-${p.id}"></div>
+      <div class="avatar">${p.initials}</div>
+      <div class="card-name">${p.name}</div>
+      <div class="xing-label">xingos</div>
+      <div class="counter-display" id="count-${p.id}">${count}</div>
+      <div class="emoji-status" id="emoji-${p.id}">${getEmoji(count)}</div>
+      <div class="btn-row">
+        <button class="btn btn-plus" id="btn-plus-${p.id}" onclick="increment('${p.id}')">+</button>
+        <button class="btn btn-minus" id="btn-minus-${p.id}" onclick="decrement('${p.id}')">−</button>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill" id="bar-${p.id}" style="width:0%"></div></div>
+    `;
+    grid.appendChild(card);
+  }
+  updateGrandTotal();
+}
+
+// ── Init ──────────────────────────────────────────────────────
+(async () => {
+  try {
+    await loadAll();
+  } catch (e) {
+    console.error('Erro ao carregar do Supabase:', e);
+    showToast('⚠️ Erro ao conectar com o banco!');
+  }
+  renderCards();
+  document.getElementById('loading').classList.add('hidden');
+})();
+</script>
+</body>
+</html>
